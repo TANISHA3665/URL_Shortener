@@ -12,7 +12,27 @@ async function handleGenerateNewShortURL(req, res) {
     visitedHistory: [],
   });
 
-  return res.json({ id: shortID });
+  return res.render('home', {
+    id: shortID,
+  });
+}
+
+async function handleRedirectUrl(req, res) {
+  const shortId = req.params.shortId;
+  const entry = await URL.findOneAndUpdate(
+    {
+      shortId,
+    },
+    {
+      $push: {
+        visitHistory: {
+          timestamp: Date.now(),
+        },
+      },
+    }
+  );
+
+  res.redirect(entry.redirectURL);
 }
 
 async function handleGetAnalytics(req, res) {
@@ -25,4 +45,4 @@ async function handleGetAnalytics(req, res) {
   });
 }
 
-export { handleGenerateNewShortURL, handleGetAnalytics };
+export { handleGenerateNewShortURL, handleGetAnalytics, handleRedirectUrl };
